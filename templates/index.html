@@ -3,9 +3,22 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
+    <title>URL Shortener</title>
 </head>
 <body>
-    <p>URL Shortener</p>
+    <h1>URL Shortener</h1>
+
+    <!-- URL Input Form -->
+    <form action="/shorten" method="POST">
+        <input type="url" name="original_url" placeholder="Enter a URL" required>
+        <button type="submit">Shorten</button>
+    </form>
+
+    <!-- Display Shortened URL -->
+    {% if short_url %}
+        <p>Shortened URL:</p>
+        <a href="{{ short_url }}">{{ short_url }}</a>
+    {% endif %}
 </body>
 </html>
+
