@@ -3,9 +3,639 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
+    <title>URL Shortener</title>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        /* Reset and base styles */
+        /* Base styles */
+    * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+        font-family: 'Nunito', sans-serif;
+    }
+
+    body {
+        background-color: #f5f0ff; /* Light lavender background */
+        color: #4a3f6b; /* Deep purple text */
+        line-height: 1.6;
+    }
+
+    .container {
+        max-width: 500px;
+        margin: 50px auto;
+        padding: 20px;
+    }
+
+    .card {
+        background-color: white;
+        border-radius: 12px;
+        box-shadow: 0 4px 20px rgba(149, 128, 255, 0.15);
+        overflow: hidden;
+    }
+
+    .card-header {
+        padding: 20px 20px 10px 20px;
+        border-bottom: 1px solid #efe5ff;
+    }
+
+    .card-title {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        font-size: 24px;
+        font-weight: 700;
+        margin-bottom: 8px;
+        color: #6d28d9; /* Vibrant purple for title */
+    }
+
+    .card-description {
+        color: #7c7299; /* Muted purple for description */
+        font-size: 14px;
+    }
+
+    .card-content {
+        padding: 20px;
+    }
+
+    .card-footer {
+        padding: 15px 20px;
+        border-top: 1px solid #efe5ff;
+        font-size: 14px;
+        color: #7c7299; /* Muted purple */
+        background-color: #fcfaff; /* Very light lavender */
+    }
+
+    .form-group {
+        margin-bottom: 20px;
+    }
+
+    label {
+        display: block;
+        margin-bottom: 8px;
+        font-weight: 600;
+        color: #5b4d9d; /* Medium-dark purple */
+    }
+
+    input {
+        width: 100%;
+        padding: 10px 12px;
+        border: 1px solid #d8cbf6; /* Light lavender border */
+        border-radius: 8px;
+        font-size: 16px;
+        transition: all 0.2s;
+        background-color: #fdfaff; /* Very light lavender background */
+    }
+
+    input:focus {
+        outline: none;
+        border-color: #8b5cf6; /* Bright purple when focused */
+        box-shadow: 0 0 0 3px rgba(139, 92, 246, 0.15);
+    }
+
+    input.error {
+        border-color: #e779c1; /* Pink-purple for errors */
+    }
+
+    .error-message {
+        color: #d946ef; /* Bright pink-purple for error text */
+        font-size: 14px;
+        margin-top: 5px;
+    }
+
+    button {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        padding: 10px 16px;
+        background-color: #8b5cf6; /* Bright purple for primary buttons */
+        color: white;
+        border: none;
+        border-radius: 8px;
+        font-size: 16px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.2s;
+    }
+
+    button:hover {
+        background-color: #7c3aed; /* Darker purple on hover */
+        transform: translateY(-1px);
+    }
+
+    button:active {
+        transform: translateY(0);
+    }
+
+    button:disabled {
+        background-color: #c4b5fd; /* Light purple when disabled */
+        cursor: not-allowed;
+        transform: none;
+    }
+
+    .btn-full {
+        width: 100%;
+    }
+
+    .btn-icon {
+        padding: 8px;
+        background-color: #f5f0ff; /* Light lavender for icon buttons */
+        color: #8b5cf6; /* Purple icon color */
+        border: 1px solid #d8cbf6; /* Light lavender border */
+    }
+
+    .btn-icon:hover {
+        background-color: #ede9fe; /* Slightly darker lavender on hover */
+        color: #7c3aed; /* Darker purple on hover */
+    }
+
+    .flex {
+        display: flex;
+    }
+
+    .items-center {
+        align-items: center;
+    }
+
+    .gap-2 {
+        gap: 8px;
+    }
+
+    .mt-6 {
+        margin-top: 24px;
+    }
+
+    .space-y-2 > * + * {
+        margin-top: 8px;
+    }
+
+    .space-y-4 > * + * {
+        margin-top: 16px;
+    }
+
+    .flex-1 {
+        flex: 1;
+    }
+
+    .history-item {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 12px;
+        border-bottom: 1px solid #efe5ff;
+        transition: background-color 0.2s;
+    }
+
+    .history-item:hover {
+        background-color: #fcfaff; /* Very light lavender on hover */
+    }
+
+    .history-item:last-child {
+        border-bottom: none;
+    }
+
+    .history-url {
+        font-size: 14px;
+        word-break: break-all;
+    }
+
+    .history-url strong {
+        color: #6d28d9; /* Vibrant purple for short URLs */
+    }
+
+    .history-actions {
+        display: flex;
+        gap: 5px;
+    }
+
+    /* Icons */
+    .icon {
+        width: 20px;
+        height: 20px;
+        stroke: currentColor;
+        stroke-width: 2;
+        stroke-linecap: round;
+        stroke-linejoin: round;
+        fill: none;
+    }
+
+    .sr-only {
+        position: absolute;
+        width: 1px;
+        height: 1px;
+        padding: 0;
+        margin: -1px;
+        overflow: hidden;
+        clip: rect(0, 0, 0, 0);
+        white-space: nowrap;
+        border-width: 0;
+    }
+
+    /* Tabs */
+    .tabs {
+        display: flex;
+        border-bottom: 1px solid #efe5ff;
+        background-color: #fcfaff; /* Very light lavender */
+    }
+
+    .tab {
+        padding: 12px 20px;
+        cursor: pointer;
+        border-bottom: 2px solid transparent;
+        font-weight: 600;
+        color: #7c7299; /* Muted purple */
+        transition: all 0.2s;
+    }
+
+    .tab:hover {
+        color: #6d28d9; /* Vibrant purple on hover */
+    }
+
+    .tab.active {
+        border-bottom-color: #8b5cf6; /* Bright purple indicator */
+        color: #6d28d9; /* Vibrant purple text */
+    }
+
+    .tab-content {
+        display: none;
+    }
+
+    .tab-content.active {
+        display: block;
+    }
+
+    /* Responsive */
+    @media (max-width: 600px) {
+        .container {
+            margin: 20px auto;
+            padding: 10px;
+        }
+    }
+
+    /* Animation for the copy button */
+    @keyframes pulse {
+        0% { transform: scale(1); }
+        50% { transform: scale(1.1); }
+        100% { transform: scale(1); }
+    }
+
+    .btn-icon:active {
+        animation: pulse 0.3s ease-in-out;
+    }
+
+    /* Custom scrollbar for the history list */
+    #history-list {
+        max-height: 300px;
+        overflow-y: auto;
+        scrollbar-width: thin;
+        scrollbar-color: #c4b5fd #f5f0ff;
+    }
+
+    #history-list::-webkit-scrollbar {
+        width: 8px;
+    }
+
+    #history-list::-webkit-scrollbar-track {
+        background: #f5f0ff;
+    }
+
+    #history-list::-webkit-scrollbar-thumb {
+        background-color: #c4b5fd;
+        border-radius: 20px;
+        border: 2px solid #f5f0ff;
+    }
+
+    /* Empty state styling */
+    #no-history {
+        text-align: center;
+        padding: 30px 20px;
+        color: #7c7299;
+        font-style: italic;
+    }    
+    </style>
 </head>
 <body>
-    <p>URL Shortener</p>
+    <div class="container">
+        <div class="card">
+            <div class="card-header">
+                <div class="card-title">
+                    <svg class="icon" viewBox="0 0 24 24">
+                        <path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path>
+                        <path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path>
+                    </svg>
+                    URL Shortener
+                </div>
+                <div class="card-description">
+                    Enter a long URL to create a shorter, more manageable link.
+                </div>
+            </div>
+
+            <div class="tabs">
+                <div class="tab active" data-tab="shorten">Shorten URL</div>
+                <div class="tab" data-tab="history">History</div>
+            </div>
+
+            <div class="tab-content active" id="shorten-tab">
+                <div class="card-content">
+                    <form id="url-form" class="space-y-4">
+                        <div class="form-group">
+                            <label for="url">URL to shorten</label>
+                            <input 
+                                id="url" 
+                                type="url" 
+                                placeholder="https://example.com/very/long/url/that/needs/shortening"
+                                required
+                            >
+                            <div id="error-message" class="error-message"></div>
+                        </div>
+                        <button type="submit" class="btn-full" id="shorten-btn">
+                            Shorten URL
+                        </button>
+                    </form>
+                    
+                    <div id="result" class="mt-6 space-y-2" style="display: none;">
+                        <label for="shortUrl">Your shortened URL</label>
+                        <div class="flex items-center gap-2">
+                            <input id="shortUrl" readonly class="flex-1">
+                            <button id="copy-btn" class="btn-icon">
+                                <svg class="icon" viewBox="0 0 24 24">
+                                    <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
+                                    <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
+                                </svg>
+                                <span class="sr-only">Copy to clipboard</span>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="tab-content" id="history-tab">
+                <div class="card-content">
+                    <div id="history-list">
+                        <!-- History items will be added here -->
+                    </div>
+                    <div id="no-history" style="text-align: center; padding: 20px; color: #666;">
+                        No shortened URLs yet
+                    </div>
+                </div>
+            </div>
+
+            <div class="card-footer">
+                <p>Links are stored in your browser and will be lost if you clear your browser data</p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // DOM Elements
+        const urlForm = document.getElementById('url-form');
+        const urlInput = document.getElementById('url');
+        const shortenBtn = document.getElementById('shorten-btn');
+        const errorMessage = document.getElementById('error-message');
+        const resultDiv = document.getElementById('result');
+        const shortUrlInput = document.getElementById('shortUrl');
+        const copyBtn = document.getElementById('copy-btn');
+        const historyList = document.getElementById('history-list');
+        const noHistory = document.getElementById('no-history');
+        const tabs = document.querySelectorAll('.tab');
+        const tabContents = document.querySelectorAll('.tab-content');
+
+        // Load URLs from localStorage
+        let urlsHistory = JSON.parse(localStorage.getItem('shortUrls') || '[]');
+        
+        // Initialize
+        updateHistoryList();
+
+        // Tab switching
+        tabs.forEach(tab => {
+            tab.addEventListener('click', () => {
+                // Remove active class from all tabs and contents
+                tabs.forEach(t => t.classList.remove('active'));
+                tabContents.forEach(c => c.classList.remove('active'));
+                
+                // Add active class to clicked tab and corresponding content
+                tab.classList.add('active');
+                const tabId = `${tab.dataset.tab}-tab`;
+                document.getElementById(tabId).classList.add('active');
+            });
+        });
+
+        // Form submission
+        urlForm.addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const url = urlInput.value.trim();
+            
+            // Validate URL
+            if (!url) {
+                showError('Please enter a URL');
+                return;
+            }
+            
+            // Add http:// if missing
+            let formattedUrl = url;
+            if (!url.startsWith('http://') && !url.startsWith('https://')) {
+                formattedUrl = 'https://' + url;
+            }
+            
+            try {
+                new URL(formattedUrl);
+            } catch (err) {
+                showError('Please enter a valid URL');
+                return;
+            }
+            
+            // Show loading state
+            shortenBtn.disabled = true;
+            shortenBtn.textContent = 'Shortening...';
+            errorMessage.textContent = '';
+            
+            // Simulate API call with setTimeout
+            setTimeout(() => {
+                try {
+                    // Generate a short code
+                    const shortCode = generateShortCode();
+                    
+                    // Create short URL
+                    const shortUrl = `${window.location.origin}/${shortCode}`;
+                    
+                    // Store in localStorage
+                    const urlData = {
+                        id: Date.now(),
+                        originalUrl: formattedUrl,
+                        shortUrl,
+                        shortCode,
+                        createdAt: new Date().toISOString()
+                    };
+                    
+                    urlsHistory.unshift(urlData);
+                    localStorage.setItem('shortUrls', JSON.stringify(urlsHistory));
+                    
+                    // Show result
+                    shortUrlInput.value = shortUrl;
+                    resultDiv.style.display = 'block';
+                    
+                    // Update history list
+                    updateHistoryList();
+                    
+                    // Reset form
+                    urlInput.value = '';
+                } catch (err) {
+                    showError('Failed to shorten URL. Please try again.');
+                    console.error(err);
+                } finally {
+                    // Reset button state
+                    shortenBtn.disabled = false;
+                    shortenBtn.textContent = 'Shorten URL';
+                }
+            }, 1000);
+        });
+
+        // Copy to clipboard
+        copyBtn.addEventListener('click', function() {
+            navigator.clipboard.writeText(shortUrlInput.value)
+                .then(() => {
+                    // Show copied icon
+                    copyBtn.innerHTML = `
+                        <svg class="icon" viewBox="0 0 24 24">
+                            <polyline points="20 6 9 17 4 12"></polyline>
+                        </svg>
+                        <span class="sr-only">Copied!</span>
+                    `;
+                    
+                    // Reset after 2 seconds
+                    setTimeout(() => {
+                        copyBtn.innerHTML = `
+                            <svg class="icon" viewBox="0 0 24 24">
+                                <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
+                                <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
+                            </svg>
+                            <span class="sr-only">Copy to clipboard</span>
+                        `;
+                    }, 2000);
+                })
+                .catch(err => {
+                    console.error('Failed to copy: ', err);
+                });
+        });
+
+        // Generate a random short code
+        function generateShortCode() {
+            const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+            let result = '';
+            for (let i = 0; i < 6; i++) {
+                result += chars.charAt(Math.floor(Math.random() * chars.length));
+            }
+            return result;
+        }
+
+        // Show error message
+        function showError(message) {
+            errorMessage.textContent = message;
+            urlInput.classList.add('error');
+            
+            // Remove error class after 3 seconds
+            setTimeout(() => {
+                urlInput.classList.remove('error');
+            }, 3000);
+        }
+
+        // Update history list
+        function updateHistoryList() {
+            if (urlsHistory.length === 0) {
+                historyList.innerHTML = '';
+                noHistory.style.display = 'block';
+                return;
+            }
+            
+            noHistory.style.display = 'none';
+            historyList.innerHTML = '';
+            
+            urlsHistory.forEach(item => {
+                const historyItem = document.createElement('div');
+                historyItem.className = 'history-item';
+                
+                // Format the original URL (truncate if too long)
+                let displayUrl = item.originalUrl;
+                if (displayUrl.length > 40) {
+                    displayUrl = displayUrl.substring(0, 37) + '...';
+                }
+                
+                historyItem.innerHTML = `
+                    <div class="history-url">
+                        <div><strong>${item.shortUrl}</strong></div>
+                        <div>${displayUrl}</div>
+                    </div>
+                    <div class="history-actions">
+                        <button class="btn-icon copy-history" data-url="${item.shortUrl}">
+                            <svg class="icon" viewBox="0 0 24 24">
+                                <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
+                                <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
+                            </svg>
+                        </button>
+                        <button class="btn-icon delete-history" data-id="${item.id}">
+                            <svg class="icon" viewBox="0 0 24 24">
+                                <polyline points="3 6 5 6 21 6"></polyline>
+                                <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
+                            </svg>
+                        </button>
+                    </div>
+                `;
+                
+                historyList.appendChild(historyItem);
+            });
+            
+            // Add event listeners to copy buttons
+            document.querySelectorAll('.copy-history').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    const url = this.dataset.url;
+                    navigator.clipboard.writeText(url)
+                        .then(() => {
+                            // Show copied icon
+                            const originalHTML = this.innerHTML;
+                            this.innerHTML = `
+                                <svg class="icon" viewBox="0 0 24 24">
+                                    <polyline points="20 6 9 17 4 12"></polyline>
+                                </svg>
+                            `;
+                            
+                            // Reset after 2 seconds
+                            setTimeout(() => {
+                                this.innerHTML = originalHTML;
+                            }, 2000);
+                        })
+                        .catch(err => {
+                            console.error('Failed to copy: ', err);
+                        });
+                });
+            });
+            
+            // Add event listeners to delete buttons
+            document.querySelectorAll('.delete-history').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    const id = parseInt(this.dataset.id);
+                    urlsHistory = urlsHistory.filter(item => item.id !== id);
+                    localStorage.setItem('shortUrls', JSON.stringify(urlsHistory));
+                    updateHistoryList();
+                });
+            });
+        }
+
+        // Handle redirect if this is a short URL
+        const path = window.location.pathname;
+        if (path.length > 1) {  // If path is not just "/"
+            const shortCode = path.substring(1);  // Remove leading "/"
+            const urlsData = JSON.parse(localStorage.getItem('shortUrls') || '[]');
+            const urlData = urlsData.find(item => item.shortCode === shortCode);
+            
+            if (urlData) {
+                // Redirect to the original URL
+                window.location.href = urlData.originalUrl;
+            }
+        }
+    </script>
 </body>
 </html>
