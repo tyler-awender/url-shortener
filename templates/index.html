@@ -130,5 +130,73 @@
         });
       }
     </script>
+    <!-- tab and history logic -->
+    <script>
+      // save to localStorage after shortening
+      document.addEventListener("DOMContentLoaded", () => {
+        const shortUrl = "{{ short_url|default('', true) }}";
+        const originalUrl =
+          "{{ request.form['original_url'] if request.form else '' }}";
+
+        if (shortUrl && originalUrl) {
+          saveToHistory(originalUrl, shortUrl);
+        }
+
+        loadHistory(); // load history every time the page is rendered
+      });
+
+      function saveToHistory(original, short) {
+        const history = JSON.parse(localStorage.getItem("urlHistory")) || [];
+        history.unshift({
+          original,
+          short,
+          created: new Date().toISOString(),
+        });
+        localStorage.setItem("urlHistory", JSON.stringify(history));
+      }
+
+      function loadHistory() {
+        const history = JSON.parse(localStorage.getItem("urlHistory")) || [];
+        const container = document.getElementById("history-list");
+        container.innerHTML = "";
+
+        if (history.length === 0) {
+          container.innerHTML = "<p>No shortened URLs yet.</p>";
+          return;
+        }
+
+        history.forEach((item) => {
+          const block = document.createElement("div");
+          block.innerHTML = `
+          <div class="space-y-2">
+            <p><strong>${item.original}</strong></p>
+            <p><a href="${item.short}" target="_blank">${item.short}</a></p>
+            <p><small>Created: ${new Date(
+              item.created
+            ).toLocaleString()}</small></p>
+            <hr/>
+          </div>
+        `;
+          container.appendChild(block);
+        });
+      }
+
+      // TAB SWITCHING LOGIC
+      document.querySelectorAll(".tab").forEach((tab) => {
+        tab.addEventListener("click", () => {
+          document
+            .querySelectorAll(".tab")
+            .forEach((t) => t.classList.remove("active"));
+          document
+            .querySelectorAll(".tab-content")
+            .forEach((c) => c.classList.remove("active"));
+
+          tab.classList.add("active");
+          document
+            .getElementById(`${tab.dataset.tab}-tab`)
+            .classList.add("active");
+        });
+      });
+    </script>
   </body>
 </html>
