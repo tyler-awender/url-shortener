@@ -1,6 +1,7 @@
 # imports
 import random
 import string
+import validators
 
 from flask import Flask, render_template, request, redirect, url_for
 from flask_sqlalchemy import SQLAlchemy
@@ -33,13 +34,35 @@ def generate_short_code(length=6):
 
 @app.route('/shorten', methods=['POST'])
 def shorten():
-    original_url = request.form['original_url']
-    short_code = generate_short_code()
+    original_url = request.form['original_url'].strip()
+
+    # Normalize URL
+    if not original_url.startswith(('http://', 'https://')):
+        original_url = 'http://' + original_url
+
+    # Validate URL
+    if not validators.url(original_url):
+        return render_template('index.html', error="Invalid URL")
 
     with sqlite3.connect("urls.db") as conn:
         cursor = conn.cursor()
-        cursor.execute("INSERT INTO urls (original_url, short_code) VALUES (?, ?)", (original_url, short_code))
-        conn.commit()
+
+        # Check if the URL already exists
+        cursor.execute("SELECT short_code FROM urls WHERE original_url = ?", (original_url,))
+        row = cursor.fetchone()
+        if row:
+            short_code = row[0]
+        else:
+            # Generate a unique short code
+            while True:
+                short_code = generate_short_code()
+                cursor.execute("SELECT 1 FROM urls WHERE short_code = ?", (short_code,))
+                if not cursor.fetchone():
+                    break
+
+            # Insert into DB
+            cursor.execute("INSERT INTO urls (original_url, short_code) VALUES (?, ?)", (original_url, short_code))
+            conn.commit()
 
     short_url = request.host_url + short_code
     return render_template('index.html', short_url=short_url)
