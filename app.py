@@ -79,7 +79,7 @@ def redirect_to_original(short_code):
     else:
         return "URL not found", 404
 
-
+init_db() # gunicorn doesnt run main - run for when site is live
 if __name__ == '__main__':
-    init_db() # initialize the database when the app starts
+    init_db() # initialize the database when the app starts - for local development
     app.run(debug=True) # run the app in debug mode
