@@ -27,7 +27,7 @@ app.config
 
 @app.route('/') # run index when someone goes to this url (root) 
 def index():
-    return render_template('index.html')
+    return render_template('index.html', error=None)
 
 def generate_short_code(length=6):
     return ''.join(random.choices(string.ascii_letters + string.digits, k=length))

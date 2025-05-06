@@ -57,16 +57,18 @@
                 <input
                   id="url"
                   name="original_url"
-                  type="url"
+                  type="text"
                   placeholder="https://example.com/very/long/url"
                   required
                 />
-                <div id="error-message" class="error-message"></div>
               </div>
               <button type="submit" class="btn-full" id="shorten-btn">
                 Shorten URL
               </button>
             </form>
+            {% if error is defined and error %}
+            <p class="error">{{ error }}</p>
+            {% endif %}
 
             <!--  Flask: display shortened URL if exists -->
             {% if short_url %}
